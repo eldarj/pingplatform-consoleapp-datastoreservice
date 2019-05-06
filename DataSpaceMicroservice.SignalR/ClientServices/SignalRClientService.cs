@@ -10,6 +10,9 @@ using System.IO;
 using System.Threading.Channels;
 using Ping.Commons.Dtos.Models.DataSpace;
 using DataSpaceMicroservice.Data.Services;
+using DataSpaceMicroservice.RabbitMQ.Consumers;
+using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
+using Api.DtoModels.Auth;
 
 namespace DataSpaceMicroservice.SignalR.ClientServices
 {
@@ -18,21 +21,32 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
         private readonly ILogger logger;
         private readonly IApplicationLifetime appLifetime;
         private readonly IDataSpaceService dataSpaceService;
+        private readonly IAccountService accountService;
+        private readonly IAccountMQConsumer accountMQConsumer;
 
         private readonly HubConnection hubConnectionDataSpace;
+        private readonly HubConnection hubConnectionAuth;
 
         public SignalRClientService(
             ILogger<SignalRClientService> logger,
             IApplicationLifetime applicationLifetime,
-            IDataSpaceService dataSpaceService)
+            IDataSpaceService dataSpaceService,
+            IAccountService accountService,
+            IAccountMQConsumer accountMQConsumer)
         {
             this.logger = logger;
             this.appLifetime = applicationLifetime;
             this.dataSpaceService = dataSpaceService;
+            this.accountService = accountService;
+            this.accountMQConsumer = accountMQConsumer;
 
             // Setup SignalR Hub connection
             hubConnectionDataSpace = new HubConnectionBuilder()
                 .WithUrl("https://localhost:44380/dataspacehub?groupName=dataspaceMicroservice")
+                .Build();
+
+            hubConnectionAuth = new HubConnectionBuilder()
+                .WithUrl("https://localhost:44380/authhub?groupName=dataspaceMicroservice")
                 .Build();
         }
 
@@ -65,6 +79,31 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                         return;
                     }
                     logger.LogInformation("DataSpaceMicroservice connected to DataSpaceHub successfully (OnStarted)");
+                });
+
+                await hubConnectionAuth.StartAsync().ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        logger.LogError("-- Couln't connect to signalR AuthHub (OnStarted)");
+                        return;
+                    }
+                    logger.LogInformation("DataSpaceMicroservice connected to AuthHub successfully (OnStarted)");
+                });
+
+                hubConnectionAuth.On<AccountDto>("RegistrationDone", async (accountDto) =>
+                {
+                    logger.LogInformation($"-- [AccountMicroservice] registered new account for {accountDto.PhoneNumber}.");
+
+                    if(await accountService.CreateNewUser(accountDto))
+                    {
+                        logger.LogInformation($"-- {accountDto.PhoneNumber} account added to db. ");
+
+                    }
+                    else
+                    {
+                        logger.LogError($"-- Couldn't add {accountDto.PhoneNumber} account to db. ");
+                    }
                 });
 
                 hubConnectionDataSpace.On<string, FileUploadDto>("SaveFileMetadata", async (appId, fileDto) =>
