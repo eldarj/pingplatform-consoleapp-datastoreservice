@@ -13,7 +13,7 @@ namespace DataSpaceMicroservice.Data.Models
         public DateTime CreationTime { get; set; } = DateTime.Now;
         public DateTime LastModifiedTime { get; set; } = DateTime.Now;
         public DateTime LastAccessTime { get; set; } = DateTime.Now;
-        public int DirectoryId { get; set; }
+        public int? DirectoryId { get; set; }
         public virtual DSDirectory Directory { get; set; }
         public int OwnerId { get; set; }
         public virtual Account Owner { get; set; }
