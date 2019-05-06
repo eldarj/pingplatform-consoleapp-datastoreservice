@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataSpaceMicroservice.Data\DataSpaceMicroservice.Data.csproj" />
+    <ProjectReference Include="..\DataSpaceMicroservice.RabbitMQ\DataSpaceMicroservice.RabbitMQ.csproj" />
     <ProjectReference Include="..\DataSpaceMicroservice.SignalR\DataSpaceMicroservice.SignalR.csproj" />
   </ItemGroup>
 

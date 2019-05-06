@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DataSpaceMicroservice.RabbitMQ.Utils;
+using Api.DtoModels.Auth;
+using System.Threading.Tasks;
 
 namespace DataSpaceMicroservice.RabbitMQ.Consumers
 {
@@ -65,25 +67,31 @@ namespace DataSpaceMicroservice.RabbitMQ.Consumers
             _connection.Close();
         }
 
-        public void ConsumeMessages<T>(T account)
+        // We could call this upon instantiating the class (within the constructor), 
+        // -- but we want to have the abillity to define the [T] param
+        // -- so, we'll call ConsumeMessages right after we register this service, in Program.cs in this case
+        public async void Listen()
         {
             Console.WriteLine("Listening for Topic <payment.purchaseorder>");
             Console.WriteLine("------------------------------------------");
-            Console.WriteLine();
 
+            // TODO: change this to an OnEvent listener, so we don't run it constantly - we'll trigger our consume from SignalR or something
             while (true)
             {
-                BasicDeliverEventArgs deliveryArguments = _subscription.Next();
+                await Task.Run(() =>
+                {
+                    BasicDeliverEventArgs deliveryArguments = _subscription.Next();
 
-                var message = (T)deliveryArguments.Body.Deserialize(typeof(T));
-                var routingKey = deliveryArguments.RoutingKey;
+                    var message = (AccountDto)deliveryArguments.Body.Deserialize(typeof(AccountDto));
+                    var routingKey = deliveryArguments.RoutingKey;
 
-                Console.WriteLine("RABBITMQ INFO: [Account Registered] - Message received from exchange/queue [{0}/{1}], data: {2}",
-                    ExchangeName,
-                    QueueName,
-                    deliveryArguments);
+                    Console.WriteLine("RABBITMQ INFO: [Account Registered] - Message received from exchange/queue [{0}/{1}], data: {2}",
+                        ExchangeName,
+                        QueueName,
+                        Encoding.Default.GetString(deliveryArguments.Body));
 
-                _subscription.Ack(deliveryArguments);
+                    _subscription.Ack(deliveryArguments);
+                });
             }
 
         }

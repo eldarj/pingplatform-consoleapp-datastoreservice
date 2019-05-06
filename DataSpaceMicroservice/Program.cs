@@ -20,6 +20,8 @@ namespace DataSpaceMicroservice
     {
         public static async Task Main(string[] args)
         {
+            Console.WriteLine("::DataSpace Microservice::");
+
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(configHost =>
                 {
@@ -40,8 +42,6 @@ namespace DataSpaceMicroservice
 
                     services.AddHostedService<SignalRClientService>();
                     services.AddScoped<IDataSpaceService, DataSpaceService>();
-
-                    services.AddScoped<IAccountMQConsumer, AccountMQConsumer>();
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
@@ -51,8 +51,16 @@ namespace DataSpaceMicroservice
                 .UseConsoleLifetime()
                 .Build();
 
-            Console.WriteLine("::DataSpace Microservice::");
+            RunAdditionalSetup();
+
             await host.RunAsync();
+        }
+
+        private static void RunAdditionalSetup()
+        {
+            // Instantiate our AccountMQConsumer service and it's listener/consumer method
+            IAccountMQConsumer mqAccountConsumer = new AccountMQConsumer();
+            mqAccountConsumer.Listen();
         }
     }
 }

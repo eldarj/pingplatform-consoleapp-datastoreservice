@@ -10,6 +10,6 @@ namespace DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces
 
         void Close();
 
-        void ConsumeMessages<T>(T account);
+        void Listen();
     }
 }
