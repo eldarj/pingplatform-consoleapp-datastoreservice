@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSpaceMicroservice", "DataSpaceMicroservice\DataSpaceMicroservice.csproj", "{CF4A0ADA-29F6-4EFA-A454-AE49FED3468C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSpaceMicroservice.Data", "DataSpaceMicroservice.Data\DataSpaceMicroservice.Data.csproj", "{E91CD473-BDB7-404D-A76E-DCB3B6A2114F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSpaceMicroservice.SignalR", "DataSpaceMicroservice.SignalR\DataSpaceMicroservice.SignalR.csproj", "{7941793E-82A6-4452-9F57-C136805ADA6C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping.Commons.Dtos", "..\..\api\api-gateway\Ping.Commons.Dtos\Ping.Commons.Dtos.csproj", "{9D806555-597A-4C58-BA2E-C94E68196E68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSpaceMicroservice.RabbitMQ", "DataSpaceMicroservice.RabbitMQ\DataSpaceMicroservice.RabbitMQ.csproj", "{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF4A0ADA-29F6-4EFA-A454-AE49FED3468C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF4A0ADA-29F6-4EFA-A454-AE49FED3468C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF4A0ADA-29F6-4EFA-A454-AE49FED3468C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF4A0ADA-29F6-4EFA-A454-AE49FED3468C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E91CD473-BDB7-404D-A76E-DCB3B6A2114F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E91CD473-BDB7-404D-A76E-DCB3B6A2114F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E91CD473-BDB7-404D-A76E-DCB3B6A2114F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E91CD473-BDB7-404D-A76E-DCB3B6A2114F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7941793E-82A6-4452-9F57-C136805ADA6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7941793E-82A6-4452-9F57-C136805ADA6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7941793E-82A6-4452-9F57-C136805ADA6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7941793E-82A6-4452-9F57-C136805ADA6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D806555-597A-4C58-BA2E-C94E68196E68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D806555-597A-4C58-BA2E-C94E68196E68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D806555-597A-4C58-BA2E-C94E68196E68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D806555-597A-4C58-BA2E-C94E68196E68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D5D678A1-4A57-4D7E-9816-8EB75CDA6FAC}
+	EndGlobalSection
+EndGlobal
