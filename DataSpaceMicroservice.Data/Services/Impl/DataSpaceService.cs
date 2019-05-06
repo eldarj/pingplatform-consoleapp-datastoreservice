@@ -28,7 +28,8 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             {
                 FileName = fileUploadDto.FileName,
                 Path = fileUploadDto.FilePath,
-                Owner = ownerAccount
+                Owner = ownerAccount,
+                MimeType = fileUploadDto.MimeType
             };
 
             dbContext.Files.Add(newFile);

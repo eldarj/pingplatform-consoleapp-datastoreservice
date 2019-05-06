@@ -26,6 +26,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
             account = new Account
             {
+                Id = accountDto.Id,
                 PhoneNumber = accountDto.PhoneNumber
             };
 
