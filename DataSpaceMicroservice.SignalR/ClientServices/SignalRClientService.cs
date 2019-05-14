@@ -112,16 +112,16 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     logger.LogInformation($"-- {appId} requesting SaveDirectoryMetadata for {appId}.");
 
                     // TODO: save dir
-                    DirectoryDto directoryResponse = await dataSpaceService.NewDirectory(phonenumber, dirDto);
+                    NodeDto directoryResponse = await dataSpaceService.NewDirectory(phonenumber, dirDto);
                     if (directoryResponse != null)
                     {
-                        logger.LogInformation($"-- {directoryResponse.DirName} metadata saved (Success). " +
+                        logger.LogInformation($"-- {directoryResponse.Name} metadata saved (Success). " +
                             $"Returning response dto obj.");
                         await hubConnectionDataSpace.SendAsync("SaveDirectoryMetadataSuccess", appId, directoryResponse);
                         return;
                     }
 
-                    logger.LogError($"-- {directoryResponse.DirName} metadata not saved (Fail). " +
+                    logger.LogError($"-- {directoryResponse.Name} metadata not saved (Fail). " +
                         $"Returning error message.");
                     await hubConnectionDataSpace.SendAsync("SaveDirectoryMetadataFail", appId,
                         $"Saving metadata failed, for file: {dirDto}, requested by: {appId}");

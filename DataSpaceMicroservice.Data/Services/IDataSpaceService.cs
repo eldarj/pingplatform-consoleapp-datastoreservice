@@ -14,6 +14,6 @@ namespace DataSpaceMicroservice.Data.Services
 
         Task<bool> DeleteFile(string ownerPhoneNumber, string fileName);
 
-        Task<DirectoryDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto); 
+        Task<NodeDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto); 
     }
 }

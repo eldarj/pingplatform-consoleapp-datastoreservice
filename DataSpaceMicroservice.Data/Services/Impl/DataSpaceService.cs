@@ -45,7 +45,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
             return true;
         }
-        public async Task<DirectoryDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto)
+        public async Task<NodeDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto)
         { 
             var ownerAccount = dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
@@ -72,20 +72,20 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dbContext.DSDirectories.Add(dsDirectory);
             }
 
-            dsDirectory.Node.Name = directoryDto.DirName;
-            dsDirectory.Node.Path = directoryDto.Path;
-            dsDirectory.Node.Owner = ownerAccount;
-            dsDirectory.Node.NodeType = NodeType.Directory;
-            dsDirectory.Node.Private = directoryDto.Private;
-
             if (!String.IsNullOrWhiteSpace(directoryDto.ParentDirName))
             {
                 var parentDir = await dbContext.DSDirectories.Where(d => d.Node.Name == directoryDto.ParentDirName).SingleOrDefaultAsync();
                 dsDirectory.ParentDirectoryId = parentDir.Id;
             }
 
+            dsDirectory.Node.Name = directoryDto.DirName;
+            dsDirectory.Node.Path = directoryDto.Path;
+            dsDirectory.Node.Private = directoryDto.Private;
+            dsDirectory.Node.NodeType = NodeType.Directory;
+            dsDirectory.Node.Owner = ownerAccount;
+
             await dbContext.SaveChangesAsync();
-            return directoryDto;
+            return autoMapper.Map<NodeDto>(dsDirectory);
         }
 
         public async Task<FileUploadDto> FileUpload(FileUploadDto fileUploadDto)
@@ -143,13 +143,13 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             if (ownerAccount != null)
             {
                 var files = dbContext.DSFiles
-                    .Where(f => f.Node.OwnerId == ownerAccount.Id)
+                    .Where(f => f.Node.OwnerId == ownerAccount.Id && f.ParentDirectoryId == null)
                     .ToList();
 
                 var dirs = dbContext.DSDirectories
                     .Include(d => d.Files)
                     .Include(d => d.Directories)
-                    .Where(d => d.Node.OwnerId == ownerAccount.Id)
+                    .Where(d => d.Node.OwnerId == ownerAccount.Id && d.ParentDirectoryId == null)
                     .ToList();
 
                 var dataSpace = new DataSpaceMetadata();
@@ -158,6 +158,8 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
                 dataSpace.Nodes.AddRange(autoMapper.Map<List<NodeDto>>(dirs));
                 dataSpace.Nodes.AddRange(autoMapper.Map<List<NodeDto>>(files));
+
+                dataSpace.Nodes = dataSpace.Nodes.OrderByDescending(node => node.LastModifiedTime).ToList();
 
                 return dataSpace;
                 // MANUAL MAPPING IS BAD!
