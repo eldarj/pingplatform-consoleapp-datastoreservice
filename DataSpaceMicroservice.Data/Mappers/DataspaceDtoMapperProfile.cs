@@ -8,8 +8,18 @@ using System.Text;
 
 namespace DataSpaceMicroservice.Data.Mappers
 {
+    public static class MappingExtensions
+    {
+        // Map multiple lists (files and dirs) into one single node list
+        public static ICollection<DSFile> AllNodes(this DSDirectory source)
+        {
+            return source.Files;
+        }
+    }
+
     public class DataspaceDtoMapperProfile : Profile
     {
+        
         public DataspaceDtoMapperProfile(MyDbContext db)
         {
             // Map DSDirectory to NodeDto
@@ -24,8 +34,9 @@ namespace DataSpaceMicroservice.Data.Mappers
                 .ForMember(dest => dest.NodeType, source => source.MapFrom(dsDir => dsDir.Node.NodeType.ToString()))
                 .ForMember(dest => dest.ParentDirName, source => source.MapFrom(dsDir => dsDir.ParentDirectory.Node.Name))
                 .ForMember(dest => dest.Directories, source => source.MapFrom(dsDir => dsDir.Directories))
-                .ForMember(dest => dest.MimeType, options => options.Ignore())
-                .ForMember(dest => dest.Files, source => source.MapFrom(dsDir => dsDir.Files)); // TODO: Set up DSFile to NodeDto mapping
+                .ForMember(dest => dest.Files, source => source.MapFrom(dsDir => dsDir.Files))
+                .ForMember(dest => dest.Nodes, source => source.MapFrom(dsDir => dsDir.AllNodes()))
+                .ForMember(dest => dest.MimeType, options => options.Ignore());
 
             // Map DSFile to NodeDto
             CreateMap<DSFile, NodeDto>()
@@ -40,7 +51,8 @@ namespace DataSpaceMicroservice.Data.Mappers
                 .ForMember(dest => dest.ParentDirName, source => source.MapFrom(dsDir => dsDir.ParentDirectory.Node.Name))
                 .ForMember(dest => dest.MimeType, source => source.MapFrom(dsFile => dsFile.MimeType))
                 .ForMember(dest => dest.Directories, options => options.Ignore())
-                .ForMember(dest => dest.Files, options => options.Ignore());
+                .ForMember(dest => dest.Files, options => options.Ignore())
+                .ForMember(dest => dest.Nodes, options => options.Ignore());
         }
     }
 }
