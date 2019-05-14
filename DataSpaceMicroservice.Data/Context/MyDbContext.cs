@@ -11,8 +11,9 @@ namespace DataSpaceMicroservice.Data.Context
 
         #region DbSets
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<DSFile> Files { get; set; }
-        public DbSet<DSDirectory> Directories { get; set; }
+        public DbSet<DSNode> DSNodes { get; set; }
+        public DbSet<DSFile> DSFiles { get; set; }
+        public DbSet<DSDirectory> DSDirectories { get; set; }
         public DbSet<FileAccountShare> FileAccountShares { get; set; }
         #endregion
 
@@ -30,6 +31,20 @@ namespace DataSpaceMicroservice.Data.Context
             modelBuilder.Entity<Account>()
                 .HasIndex(a => a.PhoneNumber)
                 .IsUnique();
+
+            modelBuilder.Entity<DSNode>()
+                .Property(node => node.NodeType)
+                .HasConversion<string>();
+
+            //modelBuilder.Entity<DSFile>()
+            //    .HasOne<Account>(file => file.Owner)
+            //    .WithMany(owner => owner.OwningFiles)
+            //    .HasForeignKey(file => file.OwnerId);
+
+            //modelBuilder.Entity<DSDirectory>()
+            //    .HasOne<Account>(dir => dir.Owner)
+            //    .WithMany(owner => owner.OwningDirectories)
+            //    .HasForeignKey(dir => dir.OwnerId);
         }
     }
 }
