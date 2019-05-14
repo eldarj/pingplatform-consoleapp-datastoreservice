@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataSpaceMicroservice.Data.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20190504201607_Init")]
+    [Migration("20190514140310_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,13 @@ namespace DataSpaceMicroservice.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("AvatarImageUrl");
+
                     b.Property<string>("DataSpaceDirName");
+
+                    b.Property<string>("Firstname");
+
+                    b.Property<string>("Lastname");
 
                     b.Property<string>("PhoneNumber");
 
@@ -41,21 +47,17 @@ namespace DataSpaceMicroservice.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("CreationTime");
+                    b.Property<int>("NodeId");
 
-                    b.Property<string>("DirName");
-
-                    b.Property<bool>("Empty");
-
-                    b.Property<DateTime>("LastAccessTime");
-
-                    b.Property<DateTime>("LastModifiedTime");
-
-                    b.Property<string>("Path");
+                    b.Property<int?>("ParentDirectoryId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Directories");
+                    b.HasIndex("NodeId");
+
+                    b.HasIndex("ParentDirectoryId");
+
+                    b.ToTable("DSDirectories");
                 });
 
             modelBuilder.Entity("DataSpaceMicroservice.Data.Models.DSFile", b =>
@@ -63,29 +65,46 @@ namespace DataSpaceMicroservice.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("MimeType");
+
+                    b.Property<int>("NodeId");
+
+                    b.Property<int?>("ParentDirectoryId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NodeId");
+
+                    b.HasIndex("ParentDirectoryId");
+
+                    b.ToTable("DSFiles");
+                });
+
+            modelBuilder.Entity("DataSpaceMicroservice.Data.Models.DSNode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
                     b.Property<DateTime>("CreationTime");
-
-                    b.Property<int>("DirectoryId");
-
-                    b.Property<string>("FileName");
-
-                    b.Property<DateTime>("LastAccessTime");
 
                     b.Property<DateTime>("LastModifiedTime");
 
-                    b.Property<string>("MimeType");
+                    b.Property<string>("Name");
+
+                    b.Property<string>("NodeType")
+                        .IsRequired();
 
                     b.Property<int>("OwnerId");
 
                     b.Property<string>("Path");
 
-                    b.HasKey("Id");
+                    b.Property<bool>("Private");
 
-                    b.HasIndex("DirectoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Files");
+                    b.ToTable("DSNodes");
                 });
 
             modelBuilder.Entity("DataSpaceMicroservice.Data.Models.FileAccountShare", b =>
@@ -106,15 +125,34 @@ namespace DataSpaceMicroservice.Data.Migrations
                     b.ToTable("FileAccountShares");
                 });
 
-            modelBuilder.Entity("DataSpaceMicroservice.Data.Models.DSFile", b =>
+            modelBuilder.Entity("DataSpaceMicroservice.Data.Models.DSDirectory", b =>
                 {
-                    b.HasOne("DataSpaceMicroservice.Data.Models.DSDirectory", "Directory")
-                        .WithMany("Files")
-                        .HasForeignKey("DirectoryId")
+                    b.HasOne("DataSpaceMicroservice.Data.Models.DSNode", "Node")
+                        .WithMany()
+                        .HasForeignKey("NodeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("DataSpaceMicroservice.Data.Models.DSDirectory", "ParentDirectory")
+                        .WithMany("Directories")
+                        .HasForeignKey("ParentDirectoryId");
+                });
+
+            modelBuilder.Entity("DataSpaceMicroservice.Data.Models.DSFile", b =>
+                {
+                    b.HasOne("DataSpaceMicroservice.Data.Models.DSNode", "Node")
+                        .WithMany()
+                        .HasForeignKey("NodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DataSpaceMicroservice.Data.Models.DSDirectory", "ParentDirectory")
+                        .WithMany("Files")
+                        .HasForeignKey("ParentDirectoryId");
+                });
+
+            modelBuilder.Entity("DataSpaceMicroservice.Data.Models.DSNode", b =>
+                {
                     b.HasOne("DataSpaceMicroservice.Data.Models.Account", "Owner")
-                        .WithMany("OwningFiles")
+                        .WithMany("OwningNodes")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
