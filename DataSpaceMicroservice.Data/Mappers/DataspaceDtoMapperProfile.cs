@@ -35,8 +35,14 @@ namespace DataSpaceMicroservice.Data.Mappers
                 .ForMember(dest => dest.ParentDirName, source => source.MapFrom(dsDir => dsDir.ParentDirectory.Node.Name))
                 .ForMember(dest => dest.Directories, source => source.MapFrom(dsDir => dsDir.Directories))
                 .ForMember(dest => dest.Files, source => source.MapFrom(dsDir => dsDir.Files))
-                .ForMember(dest => dest.Nodes, source => source.MapFrom(dsDir => dsDir.AllNodes()))
-                .ForMember(dest => dest.MimeType, options => options.Ignore());
+                .ForMember(dest => dest.MimeType, options => options.Ignore())
+                .ForMember(dest => dest.Nodes, options => options.Ignore())
+                .AfterMap((src, dest) =>
+                {
+                    dest.Nodes = new List<NodeDto>();
+                    dest.Nodes.AddRange(dest.Files);
+                    dest.Nodes.AddRange(dest.Directories);
+                });
 
             // Map DSFile to NodeDto
             CreateMap<DSFile, NodeDto>()
