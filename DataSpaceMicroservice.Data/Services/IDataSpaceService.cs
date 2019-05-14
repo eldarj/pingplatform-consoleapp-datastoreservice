@@ -8,6 +8,12 @@ namespace DataSpaceMicroservice.Data.Services
 {
     public interface IDataSpaceService
     {
+        DataSpaceMetadata GetAllByOwner(string ownerPhoneNumber);
+
         Task<FileUploadDto> FileUpload(FileUploadDto fileUploadDto);
+
+        Task<bool> DeleteFile(string ownerPhoneNumber, string fileName);
+
+        Task<DirectoryDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto); 
     }
 }

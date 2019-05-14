@@ -2,8 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
+using AutoMapper;
 using DataSpaceMicroservice.Data.Context;
+using DataSpaceMicroservice.Data.Mappers;
 using DataSpaceMicroservice.Data.Services;
 using DataSpaceMicroservice.Data.Services.Impl;
 using DataSpaceMicroservice.RabbitMQ.Consumers;
@@ -43,6 +44,10 @@ namespace DataSpaceMicroservice
                     services.AddHostedService<SignalRClientService>();
                     services.AddScoped<IDataSpaceService, DataSpaceService>();
                     services.AddScoped<IAccountService, AccountService>();
+                    services.AddScoped(provider => new MapperConfiguration(cfg =>
+                    {
+                        cfg.AddProfile(new DataspaceDtoMapperProfile(provider.GetService<MyDbContext>()));
+                    }).CreateMapper());
 
                     services.AddScoped<IAccountMQConsumer, AccountMQConsumer>();
                 })

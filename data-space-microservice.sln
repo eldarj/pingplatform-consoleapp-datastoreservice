@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSpaceMicroservice.Signa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping.Commons.Dtos", "..\..\api\api-gateway\Ping.Commons.Dtos\Ping.Commons.Dtos.csproj", "{9D806555-597A-4C58-BA2E-C94E68196E68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSpaceMicroservice.RabbitMQ", "DataSpaceMicroservice.RabbitMQ\DataSpaceMicroservice.RabbitMQ.csproj", "{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSpaceMicroservice.RabbitMQ", "DataSpaceMicroservice.RabbitMQ\DataSpaceMicroservice.RabbitMQ.csproj", "{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

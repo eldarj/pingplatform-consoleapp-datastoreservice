@@ -13,6 +13,7 @@ using DataSpaceMicroservice.Data.Services;
 using DataSpaceMicroservice.RabbitMQ.Consumers;
 using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
 using Api.DtoModels.Auth;
+using Newtonsoft.Json;
 
 namespace DataSpaceMicroservice.SignalR.ClientServices
 {
@@ -106,6 +107,26 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     }
                 });
 
+                hubConnectionDataSpace.On<string, string, DirectoryDto>("SaveDirectoryMetadata", async (appId, phonenumber, dirDto) =>
+                {
+                    logger.LogInformation($"-- {appId} requesting SaveDirectoryMetadata for {appId}.");
+
+                    // TODO: save dir
+                    DirectoryDto directoryResponse = await dataSpaceService.NewDirectory(phonenumber, dirDto);
+                    if (directoryResponse != null)
+                    {
+                        logger.LogInformation($"-- {directoryResponse.DirName} metadata saved (Success). " +
+                            $"Returning response dto obj.");
+                        await hubConnectionDataSpace.SendAsync("SaveDirectoryMetadataSuccess", appId, directoryResponse);
+                        return;
+                    }
+
+                    logger.LogError($"-- {directoryResponse.DirName} metadata not saved (Fail). " +
+                        $"Returning error message.");
+                    await hubConnectionDataSpace.SendAsync("SaveDirectoryMetadataFail", appId,
+                        $"Saving metadata failed, for file: {dirDto}, requested by: {appId}");
+                });
+
                 hubConnectionDataSpace.On<string, FileUploadDto>("SaveFileMetadata", async (appId, fileDto) =>
                 {
                     logger.LogInformation($"-- {appId} requesting SaveFileMetadata for {appId}.");
@@ -125,6 +146,42 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     await hubConnectionDataSpace.SendAsync("SaveFileMetadataFail", appId,
                         $"Saving metadata failed, for file: {fileDto}, requested by: {appId}");
                 });
+
+                hubConnectionDataSpace.On<string, string>("RequestFilesMetaData", async (appId, phoneNumber) =>
+                {
+                    logger.LogInformation($"-- {appId} requesting FilesMetaData for account: {phoneNumber}.");
+
+                    // TODO: get list of all dirs and files (metadata)
+                    DataSpaceMetadata dataSpaceMetadata = dataSpaceService.GetAllByOwner(phoneNumber);
+                    if (dataSpaceMetadata != null)
+                    {
+                        logger.LogInformation($"-- Returning metadata:{JsonConvert.SerializeObject(dataSpaceMetadata)}");
+                        await hubConnectionDataSpace.SendAsync("RequestFilesMetaDataSuccess", appId, dataSpaceMetadata);
+                        return;
+                    }
+
+                    logger.LogError($"-- Request couldn't be executed - returning error message.");
+                    await hubConnectionDataSpace.SendAsync("SaveFileMetadataFail", appId,
+                        $"Couldn't load directories and files, for account by number: {phoneNumber}, requested by: {appId}");
+                });
+
+                hubConnectionDataSpace.On<string, string, string>("DeleteFileMetadata", async (appId, phoneNumber, fileName) =>
+                {
+                    logger.LogInformation($"-- {appId} requesting DeleteFileMetadata ('{fileName}') by account: {phoneNumber}.");
+
+                    // TODO: delete file and return appropriate result
+                    if (await dataSpaceService.DeleteFile(phoneNumber, fileName))
+                    {
+                        logger.LogInformation($"-- File deleted successfully.");
+                        await hubConnectionDataSpace.SendAsync("DeleteFileMetadataSuccess", appId, fileName);
+                        return;
+                    }
+
+                    logger.LogError($"-- Request couldn't be executed- returning error message.");
+                    await hubConnectionDataSpace.SendAsync("DeleteFileMetadataFail", appId, fileName,
+                        $"Couldn't find {fileName} for owner: {phoneNumber}, requested by: {appId}");
+                });
+
             }
             catch (Exception e)
             {
