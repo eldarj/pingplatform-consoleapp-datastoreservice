@@ -154,10 +154,10 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
                 var dataSpace = new DataSpaceMetadata();
                 dataSpace.DiskSize = "5G";
-                dataSpace.AllNodes = new List<NodeDto>();
+                dataSpace.Nodes = new List<NodeDto>();
 
-                dataSpace.AllNodes.AddRange(autoMapper.Map<List<NodeDto>>(dirs));
-                dataSpace.AllNodes.AddRange(autoMapper.Map<List<NodeDto>>(files));
+                dataSpace.Nodes.AddRange(autoMapper.Map<List<NodeDto>>(dirs));
+                dataSpace.Nodes.AddRange(autoMapper.Map<List<NodeDto>>(files));
 
                 return dataSpace;
                 // MANUAL MAPPING IS BAD!
