@@ -15,6 +15,7 @@ namespace DataSpaceMicroservice.Data.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
+        public string Url { get; set; }
         public bool Private { get; set; } = true;
         public DateTime CreationTime { get; set; } = DateTime.Now;
         public DateTime LastModifiedTime { get; set; } = DateTime.Now;

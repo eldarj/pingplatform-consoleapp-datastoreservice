@@ -36,15 +36,15 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
-            int lastSegmentPos = directoryPath.LastIndexOf('/');
+            int lastSegmentPos = directoryPath.LastIndexOf('/') + 1;
 
-            string directoryName = directoryPath.Substring(lastSegmentPos);
-            directoryPath.Remove(lastSegmentPos);
+            string directoryName = directoryPath.Substring(lastSegmentPos); // index + 1
+            string dirPath = directoryPath.Remove(lastSegmentPos); // out
 
             // TODO: check for dirpath segments and find as in a tree-like structure
             DSDirectory dsDirectory = dbContext.DSDirectories
                 .Where(directory => directory.Node.Name == directoryName && 
-                    directory.Node.Path == directoryPath &&
+                    directory.Node.Path == dirPath &&
                     directory.Node.OwnerId == ownerAccount.Id)
                 .SingleOrDefault();
 
@@ -84,6 +84,8 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
             return true;
         }
+
+        // Check how we'll create new dirs based on path not on parentDirName
         public async Task<NodeDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto)
         { 
             var ownerAccount = dbContext.Accounts
