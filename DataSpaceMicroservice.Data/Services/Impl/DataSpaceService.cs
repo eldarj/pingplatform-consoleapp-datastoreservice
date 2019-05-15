@@ -98,13 +98,14 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             DSDirectory dsDirectory = await dbContext.DSDirectories
-                .Where(d => d.Node.Name == directoryDto.DirName && d.Node.OwnerId == ownerAccount.Id)
+                .Where(d => d.Node.Name == directoryDto.DirName && 
+                    d.Node.Path == directoryDto.Path &&
+                    d.Node.OwnerId == ownerAccount.Id)
                 .SingleOrDefaultAsync();
 
-            DSNode dsNode;
             if (dsDirectory == null)
             {
-                dsNode = new DSNode();
+                DSNode dsNode = new DSNode();
                 dsDirectory = new DSDirectory();
 
                 dbContext.DSNodes.Add(dsNode);
@@ -113,9 +114,10 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dbContext.DSDirectories.Add(dsDirectory);
             }
 
-            if (!String.IsNullOrWhiteSpace(directoryDto.ParentDirName))
+            string parentDirectoryName = directoryDto.Path.Split('/').Last();
+            if (!String.IsNullOrEmpty(parentDirectoryName))
             {
-                var parentDir = await dbContext.DSDirectories.Where(d => d.Node.Name == directoryDto.ParentDirName).SingleOrDefaultAsync();
+                DSDirectory parentDir = await dbContext.DSDirectories.Where(d => d.Node.Name == parentDirectoryName).SingleOrDefaultAsync();
                 dsDirectory.ParentDirectoryId = parentDir.Id;
             }
 
