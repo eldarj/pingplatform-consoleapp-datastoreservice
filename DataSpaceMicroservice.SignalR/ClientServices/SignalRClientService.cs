@@ -127,12 +127,12 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                         $"Saving metadata failed, for file: {dirDto}, requested by: {appId}");
                 });
 
-                hubConnectionDataSpace.On<string, FileUploadDto>("SaveFileMetadata", async (appId, fileDto) =>
+                hubConnectionDataSpace.On<string, string, FileUploadDto>("SaveFileMetadata", async (appId, phonenumber, fileDto) =>
                 {
                     logger.LogInformation($"-- {appId} requesting SaveFileMetadata for {appId}.");
 
                     // TODO: save file
-                    FileUploadDto fileResponse = await dataSpaceService.FileUpload(fileDto);
+                    FileUploadDto fileResponse = await dataSpaceService.FileUpload(phonenumber, fileDto);
                     if (fileResponse != null)
                     {
                         logger.LogInformation($"-- {fileResponse.FileName} metadata saved (Success). " +
