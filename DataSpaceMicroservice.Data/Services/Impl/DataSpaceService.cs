@@ -121,6 +121,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
             dsDirectory.Node.Name = directoryDto.DirName;
             dsDirectory.Node.Path = directoryDto.Path;
+            dsDirectory.Node.Url = directoryDto.Url;
             dsDirectory.Node.Private = directoryDto.Private;
             dsDirectory.Node.NodeType = NodeType.Directory;
             dsDirectory.Node.Owner = ownerAccount;
@@ -159,6 +160,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             //TODO Check FileUploadDto vs FileDto
             dsFile.Node.Name = fileUploadDto.FileName;
             dsFile.Node.Path = fileUploadDto.FilePath;
+            dsFile.Node.Url = fileUploadDto.Url;
             dsFile.Node.Owner = ownerAccount;
             dsFile.Node.NodeType = NodeType.File;
             dsFile.MimeType = fileUploadDto.MimeType;
