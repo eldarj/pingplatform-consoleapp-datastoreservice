@@ -20,6 +20,45 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             this.autoMapper = mapper;
         }
 
+        public async Task<bool> DeleteDirectory(string ownerPhoneNumber, string directoryPath)
+        {
+            if (String.IsNullOrWhiteSpace(directoryPath))
+            {
+                return false;
+            }
+
+            var ownerAccount = dbContext.Accounts
+                .Where(a => a.PhoneNumber == ownerPhoneNumber)
+                .SingleOrDefault();
+
+            if (ownerAccount == null)
+            {
+                return false;
+            }
+
+            int lastSegmentPos = directoryPath.LastIndexOf('/');
+
+            string directoryName = directoryPath.Substring(lastSegmentPos);
+            directoryPath.Remove(lastSegmentPos);
+
+            // TODO: check for dirpath segments and find as in a tree-like structure
+            DSDirectory dsDirectory = dbContext.DSDirectories
+                .Where(directory => directory.Node.Name == directoryName && 
+                    directory.Node.Path == directoryPath &&
+                    directory.Node.OwnerId == ownerAccount.Id)
+                .SingleOrDefault();
+
+            if (dsDirectory == null)
+            {
+                return false;
+            }
+
+            dbContext.DSDirectories.Remove(dsDirectory);
+            await dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task<bool> DeleteFile(string ownerPhoneNumber, string fileName)
         {
             var ownerAccount = dbContext.Accounts

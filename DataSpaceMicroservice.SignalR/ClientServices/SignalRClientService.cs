@@ -182,6 +182,23 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                         $"Couldn't find {fileName} for owner: {phoneNumber}, requested by: {appId}");
                 });
 
+                hubConnectionDataSpace.On<string, string, string>("DeleteDirectoryMetadata", async (appId, phoneNumber, directoryPath) =>
+                {
+                    logger.LogInformation($"-- {appId} requesting DeleteDirectoryMetadata ('{directoryPath}') by account: {phoneNumber}.");
+
+                    // TODO: delete file and return appropriate result
+                    if (await dataSpaceService.DeleteDirectory(phoneNumber, directoryPath))
+                    {
+                        logger.LogInformation($"-- Directory deleted successfully.");
+                        await hubConnectionDataSpace.SendAsync("DeleteDirectoryMetadataSuccess", appId, directoryPath);
+                        return;
+                    }
+
+                    logger.LogError($"-- Request couldn't be executed- returning error message.");
+                    await hubConnectionDataSpace.SendAsync("DeleteDirectoryMetadataFail", appId, directoryPath,
+                        $"Couldn't find directory:{directoryPath} for owner: {phoneNumber}, requested by: {appId}");
+                });
+
             }
             catch (Exception e)
             {
