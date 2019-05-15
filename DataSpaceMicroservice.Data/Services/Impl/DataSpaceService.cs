@@ -20,9 +20,9 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             this.autoMapper = mapper;
         }
 
-        public async Task<bool> DeleteDirectory(string ownerPhoneNumber, string directoryPath)
+        public async Task<bool> DeleteDirectory(string ownerPhoneNumber, string pathToDirectory)
         {
-            if (String.IsNullOrWhiteSpace(directoryPath))
+            if (String.IsNullOrWhiteSpace(pathToDirectory))
             {
                 return false;
             }
@@ -36,16 +36,20 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
-            int lastSegmentPos = directoryPath.LastIndexOf('/') + 1;
+            int lastSegmentPos = pathToDirectory.LastIndexOf('/'); // Get the positon of the last slash
+            string dirName = pathToDirectory;
+            string dirPath = "";
 
-            string directoryName = directoryPath.Substring(lastSegmentPos); // index + 1
-            string dirPath = directoryPath.Remove(lastSegmentPos); // out
+            if (lastSegmentPos > -1)
+            {
+                dirName = pathToDirectory.Substring(lastSegmentPos + 1); // Extract last segment (dir name)
+                dirPath = pathToDirectory.Remove(lastSegmentPos); // Extract the path up to the last segment
+            }
 
-            // TODO: check for dirpath segments and find as in a tree-like structure
             DSDirectory dsDirectory = dbContext.DSDirectories
-                .Where(directory => directory.Node.Name == directoryName && 
-                    directory.Node.Path == dirPath &&
-                    directory.Node.OwnerId == ownerAccount.Id)
+                .Where(directory => directory.Node.OwnerId == ownerAccount.Id && 
+                    directory.Node.Name == dirName && 
+                    directory.Node.Path == dirPath)
                 .SingleOrDefault();
 
             if (dsDirectory == null)
