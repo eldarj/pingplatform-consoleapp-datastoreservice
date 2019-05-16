@@ -14,6 +14,7 @@ using DataSpaceMicroservice.RabbitMQ.Consumers;
 using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
 using Api.DtoModels.Auth;
 using Newtonsoft.Json;
+using DataSpaceMicroservice.Data.Services.Impl;
 
 namespace DataSpaceMicroservice.SignalR.ClientServices
 {
@@ -132,7 +133,7 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     logger.LogInformation($"-- {appId} requesting SaveFileMetadata for {appId}.");
 
                     // TODO: save file
-                    NodeDto fileResponse = await dataSpaceService.FileUpload(phonenumber, fileDto);
+                    NodeDto fileResponse = dataSpaceService.FileUpload(phonenumber, fileDto);
                     if (fileResponse != null)
                     {
                         logger.LogInformation($"-- {fileResponse.Name} metadata saved (Success). " +
@@ -152,7 +153,7 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     logger.LogInformation($"-- {appId} requesting FilesMetaData for account: {phoneNumber}.");
 
                     // TODO: get list of all dirs and files (metadata)
-                    DataSpaceMetadata dataSpaceMetadata = dataSpaceService.GetAllByOwner(phoneNumber);
+                    DataSpaceMetadata dataSpaceMetadata = await dataSpaceService.GetAllByOwner(phoneNumber);
                     if (dataSpaceMetadata != null)
                     {
                         logger.LogInformation($"-- Returning metadata:{JsonConvert.SerializeObject(dataSpaceMetadata)}");

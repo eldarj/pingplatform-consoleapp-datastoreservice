@@ -48,7 +48,7 @@ namespace DataSpaceMicroservice
                     });
 
                     services.AddHostedService<SignalRClientService>();
-                    services.AddScoped<IDataSpaceService, DataSpaceService>();
+                    services.AddTransient<IDataSpaceService, DataSpaceService>();
                     services.AddScoped<IAccountService, AccountService>();
                     services.AddScoped(provider => new MapperConfiguration(cfg =>
                     {
