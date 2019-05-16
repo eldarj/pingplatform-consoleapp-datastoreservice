@@ -136,7 +136,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             return autoMapper.Map<NodeDto>(dsDirectory);
         }
 
-        public async Task<FileUploadDto> FileUpload(string ownerPhoneNumber, FileUploadDto fileUploadDto)
+        public async Task<NodeDto> FileUpload(string ownerPhoneNumber, FileDto fileDto)
         {
             var ownerAccount = dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
@@ -148,8 +148,8 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             DSFile dsFile = dbContext.DSFiles
-                .Where(f => f.Node.Name == fileUploadDto.FileName &&
-                    f.Node.Path == fileUploadDto.FilePath &&
+                .Where(f => f.Node.Name == fileDto.FileName &&
+                    f.Node.Path == fileDto.Path &&
                     f.Node.OwnerId == ownerAccount.Id)
                 .SingleOrDefault();
 
@@ -164,7 +164,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dbContext.DSFiles.Add(dsFile);
             }
 
-            string parentDirectoryName = fileUploadDto.FilePath?.Split('/').Last();
+            string parentDirectoryName = fileDto.Path?.Split('/').Last();
             if (!String.IsNullOrEmpty(parentDirectoryName))
             {
                 DSDirectory parentDir = await dbContext.DSDirectories.Where(d => d.Node.Name == parentDirectoryName).SingleOrDefaultAsync();
@@ -172,16 +172,16 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             //TODO Check FileUploadDto vs FileDto
-            dsFile.Node.Name = fileUploadDto.FileName;
-            dsFile.Node.Path = fileUploadDto.FilePath;
-            dsFile.Node.Url = fileUploadDto.Url;
-            // dsFile.Node.Private = fileUploadDto.Private; //introduce private prop on Dto
+            dsFile.Node.Name = fileDto.FileName;
+            dsFile.Node.Path = fileDto.Path;
+            dsFile.Node.Url = fileDto.Url;
+            dsFile.Node.Private = fileDto.Private; //introduce private prop on Dto
             dsFile.Node.NodeType = NodeType.File;
             dsFile.Node.Owner = ownerAccount;
-            dsFile.MimeType = fileUploadDto.MimeType;
+            dsFile.MimeType = fileDto.MimeType;
 
             await dbContext.SaveChangesAsync();
-            return fileUploadDto;
+            return autoMapper.Map<NodeDto>(dsFile);
         }
 
         // TODO: Implement a mapper helper to map all the files, directories and all sub items (2)

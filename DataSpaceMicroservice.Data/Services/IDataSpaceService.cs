@@ -10,7 +10,7 @@ namespace DataSpaceMicroservice.Data.Services
     {
         DataSpaceMetadata GetAllByOwner(string ownerPhoneNumber);
 
-        Task<FileUploadDto> FileUpload(string ownerPhoneNumber, FileUploadDto fileUploadDto);
+        Task<NodeDto> FileUpload(string ownerPhoneNumber, FileDto fileUploadDto);
 
         Task<bool> DeleteFile(string ownerPhoneNumber, string fileName);
 
