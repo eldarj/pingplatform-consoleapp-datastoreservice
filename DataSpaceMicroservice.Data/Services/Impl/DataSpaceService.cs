@@ -102,7 +102,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             DSDirectory dsDirectory = await dbContext.DSDirectories
-                .Where(d => d.Node.Name == directoryDto.DirName && 
+                .Where(d => d.Node.Name == directoryDto.Name && 
                     d.Node.Path == directoryDto.Path &&
                     d.Node.OwnerId == ownerAccount.Id)
                 .SingleOrDefaultAsync();
@@ -125,7 +125,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dsDirectory.ParentDirectoryId = parentDir.Id;
             }
 
-            dsDirectory.Node.Name = directoryDto.DirName;
+            dsDirectory.Node.Name = directoryDto.Name;
             dsDirectory.Node.Path = directoryDto.Path;
             dsDirectory.Node.Url = directoryDto.Url;
             dsDirectory.Node.Private = directoryDto.Private;
@@ -148,7 +148,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             DSFile dsFile = dbContext.DSFiles
-                .Where(f => f.Node.Name == fileDto.FileName &&
+                .Where(f => f.Node.Name == fileDto.Name &&
                     f.Node.Path == fileDto.Path &&
                     f.Node.OwnerId == ownerAccount.Id)
                 .SingleOrDefault();
@@ -172,7 +172,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             //TODO Check FileUploadDto vs FileDto
-            dsFile.Node.Name = fileDto.FileName;
+            dsFile.Node.Name = fileDto.Name;
             dsFile.Node.Path = fileDto.Path;
             dsFile.Node.Url = fileDto.Url;
             dsFile.Node.Private = fileDto.Private; //introduce private prop on Dto
