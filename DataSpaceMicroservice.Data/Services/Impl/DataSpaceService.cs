@@ -27,9 +27,9 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
-            var ownerAccount = dbContext.Accounts
+            var ownerAccount = await dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (ownerAccount == null)
             {
@@ -46,11 +46,11 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dirPath = pathToDirectory.Remove(lastSegmentPos); // Extract the path up to the last segment
             }
 
-            DSDirectory dsDirectory = dbContext.DSDirectories
+            DSDirectory dsDirectory = await dbContext.DSDirectories
                 .Where(directory => directory.Node.OwnerId == ownerAccount.Id && 
                     directory.Node.Name == dirName && 
                     directory.Node.Path == dirPath)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (dsDirectory == null)
             {
@@ -65,18 +65,18 @@ namespace DataSpaceMicroservice.Data.Services.Impl
 
         public async Task<bool> DeleteFile(string ownerPhoneNumber, string fileName)
         {
-            var ownerAccount = dbContext.Accounts
+            var ownerAccount = await dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (ownerAccount == null)
             {
                 return false;
             }
 
-            DSFile dsFile = dbContext.DSFiles
+            DSFile dsFile = await dbContext.DSFiles
                 .Where(f => f.Node.Name == fileName && f.Node.OwnerId == ownerAccount.Id)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (dsFile == null)
             {
@@ -92,9 +92,9 @@ namespace DataSpaceMicroservice.Data.Services.Impl
         // Check how we'll create new dirs based on path not on parentDirName
         public async Task<NodeDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto)
         { 
-            var ownerAccount = dbContext.Accounts
+            var ownerAccount = await dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (ownerAccount == null)
             {
@@ -112,10 +112,10 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 DSNode dsNode = new DSNode();
                 dsDirectory = new DSDirectory();
 
-                dbContext.DSNodes.Add(dsNode);
+                await dbContext.DSNodes.AddAsync(dsNode);
                 dsDirectory.Node = dsNode;
 
-                dbContext.DSDirectories.Add(dsDirectory);
+                await dbContext.DSDirectories.AddAsync(dsDirectory);
             }
 
             string parentDirectoryName = directoryDto.Path.Split('/').Last();
@@ -136,7 +136,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             return autoMapper.Map<NodeDto>(dsDirectory);
         }
 
-        public async Task<NodeDto> FileUpload(string ownerPhoneNumber, FileDto fileDto)
+        public NodeDto FileUpload(string ownerPhoneNumber, FileDto fileDto)
         {
             var ownerAccount = dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
@@ -167,7 +167,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             string parentDirectoryName = fileDto.Path?.Split('/').Last();
             if (!String.IsNullOrEmpty(parentDirectoryName))
             {
-                DSDirectory parentDir = await dbContext.DSDirectories.Where(d => d.Node.Name == parentDirectoryName).SingleOrDefaultAsync();
+                DSDirectory parentDir = dbContext.DSDirectories.Where(d => d.Node.Name == parentDirectoryName).SingleOrDefault();
                 dsFile.ParentDirectoryId = parentDir.Id;
             }
 
@@ -180,33 +180,33 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             dsFile.Node.Owner = ownerAccount;
             dsFile.MimeType = fileDto.MimeType;
 
-            await dbContext.SaveChangesAsync();
+            dbContext.SaveChanges();
             return autoMapper.Map<NodeDto>(dsFile);
         }
 
         // TODO: Implement a mapper helper to map all the files, directories and all sub items (2)
         // TODO: Change this to return back a list of Node items (same type) not files & dirs (1)
-        public DataSpaceMetadata GetAllByOwner(string ownerPhoneNumber)
+        public async Task<DataSpaceMetadata> GetAllByOwner(string ownerPhoneNumber)
         {
-            Account ownerAccount = dbContext.Accounts
+            Account ownerAccount = await dbContext.Accounts
                 .Include(a => a.OwningNodes)
                 //.Include(a => a.OwningFiles)
                 //.Include(a => a.OwningDirectories)
                 //    .ThenInclude(dir => dir.Files)
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (ownerAccount != null)
             {
-                var files = dbContext.DSFiles
+                var files = await dbContext.DSFiles
                     .Where(f => f.Node.OwnerId == ownerAccount.Id && f.ParentDirectoryId == null)
-                    .ToList();
+                    .ToListAsync();
 
-                var dirs = dbContext.DSDirectories
+                var dirs = await dbContext.DSDirectories
                     .Include(d => d.Files)
                     .Include(d => d.Directories)
                     .Where(d => d.Node.OwnerId == ownerAccount.Id && d.ParentDirectoryId == null)
-                    .ToList();
+                    .ToListAsync();
 
                 var dataSpace = new DataSpaceMetadata();
                 dataSpace.DiskSize = "5G";
