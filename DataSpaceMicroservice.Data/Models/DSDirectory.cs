@@ -8,7 +8,7 @@ namespace DataSpaceMicroservice.Data.Models
     {
         public int Id { get; set; }
         public int NodeId { get; set; }
-        public DSNode Node { get; set; }
+        public virtual DSNode Node { get; set; }
 
         // Parent Directory nav prop
         public int? ParentDirectoryId { get; set; }

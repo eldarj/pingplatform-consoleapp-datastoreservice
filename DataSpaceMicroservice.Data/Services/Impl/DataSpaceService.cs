@@ -118,6 +118,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 await dbContext.DSDirectories.AddAsync(dsDirectory);
             }
 
+            // Solve this - don't fetch parent folder by name, but either by Id or by path + name
             string parentDirectoryName = directoryDto.Path.Split('/').Last();
             if (!String.IsNullOrEmpty(parentDirectoryName))
             {
@@ -164,6 +165,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dbContext.DSFiles.Add(dsFile);
             }
 
+            // Solve this - don't fetch parent folder by name, but either by Id or by path + name
             string parentDirectoryName = fileDto.Path?.Split('/').Last();
             if (!String.IsNullOrEmpty(parentDirectoryName))
             {
@@ -189,10 +191,6 @@ namespace DataSpaceMicroservice.Data.Services.Impl
         public async Task<DataSpaceMetadata> GetAllByOwner(string ownerPhoneNumber)
         {
             Account ownerAccount = await dbContext.Accounts
-                .Include(a => a.OwningNodes)
-                //.Include(a => a.OwningFiles)
-                //.Include(a => a.OwningDirectories)
-                //    .ThenInclude(dir => dir.Files)
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
                 .SingleOrDefaultAsync();
 
@@ -203,8 +201,6 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                     .ToListAsync();
 
                 var dirs = await dbContext.DSDirectories
-                    .Include(d => d.Files)
-                    .Include(d => d.Directories)
                     .Where(d => d.Node.OwnerId == ownerAccount.Id && d.ParentDirectoryId == null)
                     .ToListAsync();
 

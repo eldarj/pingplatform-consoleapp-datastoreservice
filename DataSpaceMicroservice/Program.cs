@@ -43,8 +43,9 @@ namespace DataSpaceMicroservice
                     //services.AddDbContext<MyDbContext>();
                     services.AddDbContextPool<MyDbContext>(options => {
                         // TODO: Add this in appsettings or ENV (dev, prod) vars
-                        options.UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=", 
-                            a => a.MigrationsAssembly("DataSpaceMicroservice.Data"));
+                        options.UseLazyLoadingProxies()
+                               .UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=", a => 
+                                    a.MigrationsAssembly("DataSpaceMicroservice.Data"));
                     });
 
                     services.AddHostedService<SignalRClientService>();
