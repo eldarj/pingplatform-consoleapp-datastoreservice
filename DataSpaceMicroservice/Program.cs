@@ -10,6 +10,7 @@ using DataSpaceMicroservice.Data.Services.Impl;
 using DataSpaceMicroservice.RabbitMQ.Consumers;
 using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
 using DataSpaceMicroservice.SignalR.ClientServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,7 +40,12 @@ namespace DataSpaceMicroservice
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddDbContext<MyDbContext>();
+                    //services.AddDbContext<MyDbContext>();
+                    services.AddDbContextPool<MyDbContext>(options => {
+                        // TODO: Add this in appsettings or ENV (dev, prod) vars
+                        options.UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=", 
+                            a => a.MigrationsAssembly("DataSpaceMicroservice.Data"));
+                    });
 
                     services.AddHostedService<SignalRClientService>();
                     services.AddScoped<IDataSpaceService, DataSpaceService>();

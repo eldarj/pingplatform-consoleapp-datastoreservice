@@ -8,6 +8,7 @@ namespace DataSpaceMicroservice.Data.Context
 {
     public class MyDbContext : DbContext
     {
+        public MyDbContext(DbContextOptions<MyDbContext> dbContextOptions) : base(dbContextOptions) { }
 
         #region DbSets
         public DbSet<Account> Accounts { get; set; }
@@ -17,12 +18,12 @@ namespace DataSpaceMicroservice.Data.Context
         public DbSet<FileAccountShare> FileAccountShares { get; set; }
         #endregion
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // TODO: Add this in appsettings or ENV (dev, prod) vars
-            optionsBuilder.UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=",
-                a => a.MigrationsAssembly("DataSpaceMicroservice.Data"));
-        }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    // TODO: Add this in appsettings or ENV (dev, prod) vars
+        //    optionsBuilder.UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=",
+        //        a => a.MigrationsAssembly("DataSpaceMicroservice.Data"));
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
