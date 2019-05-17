@@ -12,7 +12,7 @@ namespace DataSpaceMicroservice.Data.Services
 
         NodeDto FileUpload(string ownerPhoneNumber, FileDto fileUploadDto);
 
-        Task<bool> DeleteFile(string ownerPhoneNumber, string fileName);
+        Task<bool> DeleteFile(string ownerPhoneNumber, string filePath);
 
         Task<bool> DeleteDirectory(string ownerPhoneNumber, string directoryPath);
 

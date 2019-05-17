@@ -166,28 +166,28 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                         $"Couldn't load directories and files, for account by number: {phoneNumber}, requested by: {appId}");
                 });
 
-                hubConnectionDataSpace.On<string, string, string>("DeleteFileMetadata", async (appId, phoneNumber, fileName) =>
+                hubConnectionDataSpace.On<string, string, string>("DeleteFileMetadata", async (appId, phoneNumber, filePath) =>
                 {
-                    logger.LogInformation($"-- {appId} requesting DeleteFileMetadata ('{fileName}') by account: {phoneNumber}.");
+                    logger.LogInformation($"-- {appId} requesting DeleteFileMetadata ('{filePath}') by account: {phoneNumber}.");
 
                     // TODO: delete file and return appropriate result
-                    if (await dataSpaceService.DeleteFile(phoneNumber, fileName))
+                    if (await dataSpaceService.DeleteFile(phoneNumber, filePath))
                     {
                         logger.LogInformation($"-- File deleted successfully.");
-                        await hubConnectionDataSpace.SendAsync("DeleteFileMetadataSuccess", appId, fileName);
+                        await hubConnectionDataSpace.SendAsync("DeleteFileMetadataSuccess", appId, filePath);
                         return;
                     }
 
                     logger.LogError($"-- Request couldn't be executed- returning error message.");
-                    await hubConnectionDataSpace.SendAsync("DeleteFileMetadataFail", appId, fileName,
-                        $"Couldn't find {fileName} for owner: {phoneNumber}, requested by: {appId}");
+                    await hubConnectionDataSpace.SendAsync("DeleteFileMetadataFail", appId, filePath,
+                        $"Couldn't find {filePath} for owner: {phoneNumber}, requested by: {appId}");
                 });
 
                 hubConnectionDataSpace.On<string, string, string>("DeleteDirectoryMetadata", async (appId, phoneNumber, directoryPath) =>
                 {
                     logger.LogInformation($"-- {appId} requesting DeleteDirectoryMetadata ('{directoryPath}') by account: {phoneNumber}.");
 
-                    // TODO: delete file and return appropriate result
+                    // TODO: delete directory and return appropriate result
                     if (await dataSpaceService.DeleteDirectory(phoneNumber, directoryPath))
                     {
                         logger.LogInformation($"-- Directory deleted successfully.");

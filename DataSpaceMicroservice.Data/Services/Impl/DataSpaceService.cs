@@ -20,9 +20,9 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             this.autoMapper = mapper;
         }
 
-        public async Task<bool> DeleteDirectory(string ownerPhoneNumber, string pathToDirectory)
+        public async Task<bool> DeleteDirectory(string ownerPhoneNumber, string directoryPath)
         {
-            if (String.IsNullOrWhiteSpace(pathToDirectory))
+            if (String.IsNullOrWhiteSpace(directoryPath))
             {
                 return false;
             }
@@ -36,20 +36,20 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
-            int lastSegmentPos = pathToDirectory.LastIndexOf('/'); // Get the positon of the last slash
-            string dirName = pathToDirectory;
-            string dirPath = "";
+            int lastSegmentPos = directoryPath.LastIndexOf('/'); // Get the positon of the last slash
+            string directoryName = directoryPath;
+            string pathToDirectory = "";
 
             if (lastSegmentPos > -1)
             {
-                dirName = pathToDirectory.Substring(lastSegmentPos + 1); // Extract last segment (dir name)
-                dirPath = pathToDirectory.Remove(lastSegmentPos); // Extract the path up to the last segment
+                directoryName = directoryPath.Substring(lastSegmentPos + 1); // Extract last segment (dir name)
+                pathToDirectory = directoryPath.Remove(lastSegmentPos); // Extract the path up to the last segment
             }
 
             DSDirectory dsDirectory = await dbContext.DSDirectories
                 .Where(directory => directory.Node.OwnerId == ownerAccount.Id && 
-                    directory.Node.Name == dirName && 
-                    directory.Node.Path == dirPath)
+                    directory.Node.Name == directoryName && 
+                    directory.Node.Path == pathToDirectory)
                 .SingleOrDefaultAsync();
 
             if (dsDirectory == null)
@@ -57,14 +57,20 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
+            dbContext.DSNodes.Remove(dsDirectory.Node);
             dbContext.DSDirectories.Remove(dsDirectory);
             await dbContext.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task<bool> DeleteFile(string ownerPhoneNumber, string fileName)
+        public async Task<bool> DeleteFile(string ownerPhoneNumber, string filePath)
         {
+            if (String.IsNullOrWhiteSpace(filePath))
+            {
+                return false;
+            }
+
             var ownerAccount = await dbContext.Accounts
                 .Where(a => a.PhoneNumber == ownerPhoneNumber)
                 .SingleOrDefaultAsync();
@@ -74,8 +80,20 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
+            int lastSegmentPos = filePath.LastIndexOf('/'); // Get the positon of the last slash
+            string fileName = filePath;
+            string pathToFile = "";
+
+            if (lastSegmentPos > -1)
+            {
+                fileName = filePath.Substring(lastSegmentPos + 1); // Extract last segment (dir name)
+                pathToFile = filePath.Remove(lastSegmentPos); // Extract the path up to the last segment
+            }
+
             DSFile dsFile = await dbContext.DSFiles
-                .Where(f => f.Node.Name == fileName && f.Node.OwnerId == ownerAccount.Id)
+                .Where(file => file.Node.OwnerId == ownerAccount.Id &&
+                    file.Node.Name == fileName &&
+                    file.Node.Path == pathToFile)
                 .SingleOrDefaultAsync();
 
             if (dsFile == null)
@@ -83,6 +101,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
+            dbContext.DSNodes.Remove(dsFile.Node);
             dbContext.DSFiles.Remove(dsFile);
             await dbContext.SaveChangesAsync();
 
