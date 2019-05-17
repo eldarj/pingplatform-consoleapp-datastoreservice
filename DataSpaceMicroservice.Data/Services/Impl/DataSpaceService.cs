@@ -57,8 +57,24 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 return false;
             }
 
+            // Delete all subdirectories and files that this directory contains
+            var childFiles = dbContext.DSFiles
+                .Where(f => f.Node.Path.Contains(directoryPath))
+                .ToList();
+
+            var childDirectories = dbContext.DSDirectories
+                .Where(d => d.Node.Path.Contains(directoryPath))
+                .ToList();
+
+            dbContext.DSNodes.RemoveRange(childFiles.Select(f => f.Node).ToList());
+            dbContext.DSFiles.RemoveRange(childFiles);
+
+            dbContext.DSNodes.RemoveRange(childDirectories.Select(f => f.Node).ToList());
+            dbContext.DSDirectories.RemoveRange(childDirectories);
+
             dbContext.DSNodes.Remove(dsDirectory.Node);
             dbContext.DSDirectories.Remove(dsDirectory);
+
             await dbContext.SaveChangesAsync();
 
             return true;
