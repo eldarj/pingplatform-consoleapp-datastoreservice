@@ -100,7 +100,6 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     if(await accountService.CreateNewUser(accountDto))
                     {
                         logger.LogInformation($"-- {accountDto.PhoneNumber} account added to db. ");
-
                     }
                     else
                     {
@@ -156,7 +155,7 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                     DataSpaceMetadata dataSpaceMetadata = await dataSpaceService.GetAllByOwner(phoneNumber);
                     if (dataSpaceMetadata != null)
                     {
-                        logger.LogInformation($"-- Returning metadata:{JsonConvert.SerializeObject(dataSpaceMetadata)}");
+                        logger.LogInformation($"-- Returning metadata for all dirs/files.");
                         await hubConnectionDataSpace.SendAsync("RequestFilesMetaDataSuccess", appId, dataSpaceMetadata);
                         return;
                     }

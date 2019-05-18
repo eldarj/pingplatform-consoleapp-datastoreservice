@@ -27,7 +27,10 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             account = new Account
             {
                 Id = accountDto.Id,
-                PhoneNumber = accountDto.PhoneNumber
+                PhoneNumber = accountDto.PhoneNumber,
+                Firstname = accountDto.Firstname,
+                Lastname = accountDto.Lastname,
+                AvatarImageUrl = accountDto.AvatarImageUrl
             };
 
             dbContext.Accounts.Add(account);

@@ -153,11 +153,23 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 await dbContext.DSDirectories.AddAsync(dsDirectory);
             }
 
-            // Solve this - don't fetch parent folder by name, but either by Id or by path + name
-            string parentDirectoryName = directoryDto.Path.Split('/').Last();
+            // Fetch parent directory by both path and name
+            int lastSegmentPos = directoryDto.Path.LastIndexOf('/'); // Get the positon of the last slash
+            string parentDirectoryName = directoryDto.Path;
+            string pathToParentDirectory = "";
+
+            if (lastSegmentPos > -1)
+            {
+                parentDirectoryName = directoryDto.Path.Substring(lastSegmentPos + 1); // Extract last segment (dir name)
+                pathToParentDirectory = directoryDto.Path.Remove(lastSegmentPos); // Extract the path up to the last segment
+            }
+
             if (!String.IsNullOrEmpty(parentDirectoryName))
             {
-                DSDirectory parentDir = await dbContext.DSDirectories.Where(d => d.Node.Name == parentDirectoryName).SingleOrDefaultAsync();
+                DSDirectory parentDir = await dbContext.DSDirectories
+                    .Where(d => d.Node.Name == parentDirectoryName &&
+                        d.Node.Path == pathToParentDirectory)
+                    .SingleOrDefaultAsync();
                 dsDirectory.ParentDirectoryId = parentDir.Id;
             }
 
@@ -200,11 +212,23 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dbContext.DSFiles.Add(dsFile);
             }
 
-            // Solve this - don't fetch parent folder by name, but either by Id or by path + name
-            string parentDirectoryName = fileDto.Path?.Split('/').Last();
+            // Fetch parent directory by both path and name
+            int lastSegmentPos = fileDto.Path.LastIndexOf('/'); // Get the positon of the last slash
+            string parentDirectoryName = fileDto.Path;
+            string pathToParentDirectory = "";
+
+            if (lastSegmentPos > -1)
+            {
+                parentDirectoryName = fileDto.Path?.Substring(lastSegmentPos + 1); // Extract last segment (dir name)
+                pathToParentDirectory = fileDto.Path?.Remove(lastSegmentPos); // Extract the path up to the last segment
+            }
+
             if (!String.IsNullOrEmpty(parentDirectoryName))
             {
-                DSDirectory parentDir = dbContext.DSDirectories.Where(d => d.Node.Name == parentDirectoryName).SingleOrDefault();
+                DSDirectory parentDir = dbContext.DSDirectories
+                    .Where(d => d.Node.Name == parentDirectoryName &&
+                        d.Node.Path == pathToParentDirectory)
+                    .SingleOrDefault();
                 dsFile.ParentDirectoryId = parentDir.Id;
             }
 
