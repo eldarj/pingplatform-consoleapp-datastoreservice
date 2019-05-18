@@ -62,6 +62,7 @@ namespace DataSpaceMicroservice
                 {
                     configLogging.AddConsole();
                     configLogging.AddDebug();
+                    configLogging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
                 })
                 .UseConsoleLifetime()
                 .Build();
