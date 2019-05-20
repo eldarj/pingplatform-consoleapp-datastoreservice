@@ -63,6 +63,8 @@ namespace DataSpaceMicroservice.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("FileSizeInKB");
+
                     b.Property<string>("MimeType");
 
                     b.Property<int>("NodeId");

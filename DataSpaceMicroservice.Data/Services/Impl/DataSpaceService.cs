@@ -232,7 +232,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 dsFile.ParentDirectoryId = parentDir.Id;
             }
 
-            //TODO Check FileUploadDto vs FileDto
+            //TODO Add this to automapper aswell
             dsFile.Node.Name = fileDto.Name;
             dsFile.Node.Path = fileDto.Path;
             dsFile.Node.Url = fileDto.Url;
@@ -240,6 +240,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             dsFile.Node.NodeType = NodeType.File;
             dsFile.Node.Owner = ownerAccount;
             dsFile.MimeType = fileDto.MimeType;
+            dsFile.FileSizeInKB = fileDto.FileSizeInKB;
 
             dbContext.SaveChanges();
             return autoMapper.Map<NodeDto>(dsFile);

@@ -84,6 +84,7 @@ namespace DataSpaceMicroservice.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     MimeType = table.Column<string>(nullable: true),
+                    FileSizeInKB = table.Column<int>(nullable: false),
                     NodeId = table.Column<int>(nullable: false),
                     ParentDirectoryId = table.Column<int>(nullable: true)
                 },

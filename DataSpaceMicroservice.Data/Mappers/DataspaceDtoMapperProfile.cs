@@ -56,6 +56,7 @@ namespace DataSpaceMicroservice.Data.Mappers
                 .ForMember(dest => dest.Private, source => source.MapFrom(dsDir => dsDir.Node.Private))
                 .ForMember(dest => dest.NodeType, source => source.MapFrom(dsDir => dsDir.Node.NodeType.ToString()))
                 .ForMember(dest => dest.MimeType, source => source.MapFrom(dsFile => dsFile.MimeType))
+                .ForMember(dest => dest.FileSizeInKB, source => source.MapFrom(dsFile => dsFile.FileSizeInKB))
                 .ForMember(dest => dest.Directories, options => options.Ignore())
                 .ForMember(dest => dest.Files, options => options.Ignore())
                 .ForMember(dest => dest.Nodes, options => options.Ignore());

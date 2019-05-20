@@ -21,8 +21,9 @@ namespace DataSpaceMicroservice.Data.Context
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
         //    // TODO: Add this in appsettings or ENV (dev, prod) vars
-        //    optionsBuilder.UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=",
-        //        a => a.MigrationsAssembly("DataSpaceMicroservice.Data"));
+        //    optionsBuilder.UseLazyLoadingProxies()
+        //        .UseMySql("server=localhost;database=PingDataSpaceMicroserviceDb;user=root;password=",
+        //            a => a.MigrationsAssembly("DataSpaceMicroservice.Data"));
         //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

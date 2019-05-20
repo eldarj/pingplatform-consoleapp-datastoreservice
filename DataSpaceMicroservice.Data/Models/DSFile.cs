@@ -8,6 +8,7 @@ namespace DataSpaceMicroservice.Data.Models
     {
         public int Id { get; set; }
         public string MimeType { get; set; } = "application/octet-stream";
+        public int FileSizeInKB { get; set; }
         public int NodeId { get; set; }
         public virtual DSNode Node { get; set; }
 
