@@ -199,6 +199,23 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                         $"Couldn't find directory:{directoryPath} for owner: {phoneNumber}, requested by: {appId}");
                 });
 
+                hubConnectionDataSpace.On<string, string, List<SimpleNodeDto>>("DeleteMultipleNodesMetadata", async (appId, phoneNumber, nodes) =>
+                {
+                    logger.LogInformation($"-- {appId} requesting DeleteMultipleNodesMetadata (total {nodes.Count}) by account: {phoneNumber}.");
+
+                    // TODO: delete directory and return appropriate result
+                    if (await dataSpaceService.BatchDeleteNodes(phoneNumber, nodes))
+                    {
+                        logger.LogInformation($"-- Nodes batch deleted successfully.");
+                        await hubConnectionDataSpace.SendAsync("DeleteMultipleNodesMetadataSuccess", appId, nodes);
+                        return;
+                    }
+
+                    logger.LogError($"-- Request couldn't be executed - returning error message.");
+                    await hubConnectionDataSpace.SendAsync("DeleteMultipleNodesMetadataFail", appId, nodes,
+                        $"Nodes batch delete failed (total {nodes.Count}) for owner: {phoneNumber}, requested by: {appId}");
+                });
+
             }
             catch (Exception e)
             {

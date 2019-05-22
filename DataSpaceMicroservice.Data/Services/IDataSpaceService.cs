@@ -16,6 +16,9 @@ namespace DataSpaceMicroservice.Data.Services
 
         Task<bool> DeleteDirectory(string ownerPhoneNumber, string directoryPath);
 
+        Task<bool> BatchDeleteNodes(string ownerPhoneNumber, List<SimpleNodeDto> nodes);
+
         Task<NodeDto> NewDirectory(string ownerPhoneNumber, DirectoryDto directoryDto); 
+
     }
 }

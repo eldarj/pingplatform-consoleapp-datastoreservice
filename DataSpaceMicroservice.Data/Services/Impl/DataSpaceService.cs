@@ -20,6 +20,48 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             this.autoMapper = mapper;
         }
 
+        // Improve this: method modularity and implement a true batch-like action (there's possibility that this will delete some nodes but not all)
+        public async Task<bool> BatchDeleteNodes(string ownerPhoneNumber, List<SimpleNodeDto> nodes)
+        {
+            if (nodes.Count < 1)
+            {
+                return false;
+            }
+
+            var ownerAccount = await dbContext.Accounts
+                .Where(a => a.PhoneNumber == ownerPhoneNumber)
+                .SingleOrDefaultAsync();
+
+            if (ownerAccount == null)
+            {
+                return false;
+            }
+
+            foreach(SimpleNodeDto node in nodes)
+            {
+                if (node.NodeType == "File")
+                {
+                    if (!await _deleteFile(ownerAccount, node.Name, node.Path))
+                    {
+                        return false;
+                    }
+                }
+                else if (node.NodeType == "Directory")
+                {
+                    if (!await _deleteDirectory(
+                        ownerAccount,
+                        node.Name,
+                        node.Path,
+                        node.Path.Length > 0 ? node.Path + "/" + node.Name : node.Name))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public async Task<bool> DeleteDirectory(string ownerPhoneNumber, string directoryPath)
         {
             if (String.IsNullOrWhiteSpace(directoryPath))
@@ -46,38 +88,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 pathToDirectory = directoryPath.Remove(lastSegmentPos); // Extract the path up to the last segment
             }
 
-            DSDirectory dsDirectory = await dbContext.DSDirectories
-                .Where(directory => directory.Node.OwnerId == ownerAccount.Id && 
-                    directory.Node.Name == directoryName && 
-                    directory.Node.Path == pathToDirectory)
-                .SingleOrDefaultAsync();
-
-            if (dsDirectory == null)
-            {
-                return false;
-            }
-
-            // Delete all subdirectories and files that this directory contains
-            var childFiles = dbContext.DSFiles
-                .Where(f => f.Node.Path.Contains(directoryPath))
-                .ToList();
-
-            var childDirectories = dbContext.DSDirectories
-                .Where(d => d.Node.Path.Contains(directoryPath))
-                .ToList();
-
-            dbContext.DSNodes.RemoveRange(childFiles.Select(f => f.Node).ToList());
-            dbContext.DSFiles.RemoveRange(childFiles);
-
-            dbContext.DSNodes.RemoveRange(childDirectories.Select(f => f.Node).ToList());
-            dbContext.DSDirectories.RemoveRange(childDirectories);
-
-            dbContext.DSNodes.Remove(dsDirectory.Node);
-            dbContext.DSDirectories.Remove(dsDirectory);
-
-            await dbContext.SaveChangesAsync();
-
-            return true;
+            return await _deleteDirectory(ownerAccount, directoryName, pathToDirectory, directoryPath);
         }
 
         public async Task<bool> DeleteFile(string ownerPhoneNumber, string filePath)
@@ -106,22 +117,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
                 pathToFile = filePath.Remove(lastSegmentPos); // Extract the path up to the last segment
             }
 
-            DSFile dsFile = await dbContext.DSFiles
-                .Where(file => file.Node.OwnerId == ownerAccount.Id &&
-                    file.Node.Name == fileName &&
-                    file.Node.Path == pathToFile)
-                .SingleOrDefaultAsync();
-
-            if (dsFile == null)
-            {
-                return false;
-            }
-
-            dbContext.DSNodes.Remove(dsFile.Node);
-            dbContext.DSFiles.Remove(dsFile);
-            await dbContext.SaveChangesAsync();
-
-            return true;
+            return await _deleteFile(ownerAccount, fileName, pathToFile);
         }
 
         // Check how we'll create new dirs based on path not on parentDirName
@@ -394,6 +390,63 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             }
 
             return null;
+        }
+
+        private async Task<bool> _deleteDirectory(Account ownerAccount, string directoryName, string pathToDirectory, string directoryPath)
+        {
+            DSDirectory dsDirectory = await dbContext.DSDirectories
+                .Where(directory => directory.Node.OwnerId == ownerAccount.Id &&
+                    directory.Node.Name == directoryName &&
+                    directory.Node.Path == pathToDirectory)
+                .SingleOrDefaultAsync();
+
+            if (dsDirectory == null)
+            {
+                return false;
+            }
+
+            // Delete all subdirectories and files that this directory contains
+            var childFiles = dbContext.DSFiles
+                .Where(f => f.Node.Path.Contains(directoryPath))
+                .ToList();
+
+            var childDirectories = dbContext.DSDirectories
+                .Where(d => d.Node.Path.Contains(directoryPath))
+                .ToList();
+
+            dbContext.DSNodes.RemoveRange(childFiles.Select(f => f.Node).ToList());
+            dbContext.DSFiles.RemoveRange(childFiles);
+
+            dbContext.DSNodes.RemoveRange(childDirectories.Select(f => f.Node).ToList());
+            dbContext.DSDirectories.RemoveRange(childDirectories);
+
+            dbContext.DSNodes.Remove(dsDirectory.Node);
+            dbContext.DSDirectories.Remove(dsDirectory);
+
+            await dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+
+        private async Task<bool> _deleteFile(Account ownerAccount, string fileName, string pathToFile)
+        {
+            DSFile dsFile = await dbContext.DSFiles
+                .Where(file => file.Node.OwnerId == ownerAccount.Id &&
+                    file.Node.Name == fileName &&
+                    file.Node.Path == pathToFile)
+                .SingleOrDefaultAsync();
+
+            if (dsFile == null)
+            {
+                return false;
+            }
+
+            dbContext.DSNodes.Remove(dsFile.Node);
+            dbContext.DSFiles.Remove(dsFile);
+            await dbContext.SaveChangesAsync();
+
+            return true;
         }
     }
 }
