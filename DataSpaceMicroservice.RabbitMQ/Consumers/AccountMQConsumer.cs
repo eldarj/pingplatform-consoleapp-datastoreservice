@@ -87,7 +87,7 @@ namespace DataSpaceMicroservice.RabbitMQ.Consumers
             Console.WriteLine("------------------------------------------");
 
             var messageBody = delivery.Body;
-            var accountDto = (AccountDto)messageBody.Deserialize(typeof(AccountDto));
+            var accountDto = (AccountDto) messageBody.Deserialize(typeof(AccountDto));
 
             Console.WriteLine(" [x] RABBITMQ INFO: [Account Registered] - Message received from exchange/queue [{0}/{1}], data: {2}",
                 ExchangeName,
