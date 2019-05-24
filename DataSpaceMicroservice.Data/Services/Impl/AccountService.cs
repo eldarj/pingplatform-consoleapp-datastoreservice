@@ -18,7 +18,6 @@ namespace DataSpaceMicroservice.Data.Services.Impl
             this.dbContext = dbContext;
         }
 
-
         public async Task<bool> CreateNewUser(AccountDto accountDto)
         {
             var account = dbContext.Accounts.Where(a => a.PhoneNumber == accountDto.PhoneNumber).SingleOrDefault();

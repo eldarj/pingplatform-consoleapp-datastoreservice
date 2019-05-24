@@ -6,15 +6,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.IO;
-using System.Threading.Channels;
 using Ping.Commons.Dtos.Models.DataSpace;
 using DataSpaceMicroservice.Data.Services;
-using DataSpaceMicroservice.RabbitMQ.Consumers;
-using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
-using Api.DtoModels.Auth;
-using Newtonsoft.Json;
-using DataSpaceMicroservice.Data.Services.Impl;
 
 namespace DataSpaceMicroservice.SignalR.ClientServices
 {
@@ -23,8 +16,6 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
         private readonly ILogger logger;
         private readonly IApplicationLifetime appLifetime;
         private readonly IDataSpaceService dataSpaceService;
-        private readonly IAccountService accountService;
-        private readonly IAccountMQConsumer accountMQConsumer;
 
         private readonly HubConnection hubConnectionDataSpace;
         private readonly HubConnection hubConnectionAuth;
@@ -32,15 +23,11 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
         public SignalRClientService(
             ILogger<SignalRClientService> logger,
             IApplicationLifetime applicationLifetime,
-            IDataSpaceService dataSpaceService,
-            IAccountService accountService,
-            IAccountMQConsumer accountMQConsumer)
+            IDataSpaceService dataSpaceService)
         {
             this.logger = logger;
             this.appLifetime = applicationLifetime;
             this.dataSpaceService = dataSpaceService;
-            this.accountService = accountService;
-            this.accountMQConsumer = accountMQConsumer;
 
             // Setup SignalR Hub connection
             hubConnectionDataSpace = new HubConnectionBuilder()
@@ -91,20 +78,6 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
                         return;
                     }
                     logger.LogInformation("DataSpaceMicroservice connected to AuthHub successfully (OnStarted)");
-                });
-
-                hubConnectionAuth.On<AccountDto>("RegistrationDone", async (accountDto) =>
-                {
-                    logger.LogInformation($"-- [DataSpaceMicroservice] registered new account for {accountDto.PhoneNumber}.");
-
-                    if(await accountService.CreateNewUser(accountDto))
-                    {
-                        logger.LogInformation($"-- {accountDto.PhoneNumber} account added to db. ");
-                    }
-                    else
-                    {
-                        logger.LogError($"-- Couldn't add {accountDto.PhoneNumber} account to db. ");
-                    }
                 });
 
                 hubConnectionDataSpace.On<string, string, DirectoryDto>("SaveDirectoryMetadata", async (appId, phonenumber, dirDto) =>

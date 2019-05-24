@@ -10,9 +10,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\api\api-gateway\Ping.Commons.Dtos\Ping.Commons.Dtos.csproj" />
+    <ProjectReference Include="..\DataSpaceMicroservice.Data\DataSpaceMicroservice.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.hosting.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\newtonsoft.json\11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>

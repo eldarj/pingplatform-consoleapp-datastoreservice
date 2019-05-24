@@ -1,93 +1,113 @@
 ﻿using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.MessagePatterns;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using DataSpaceMicroservice.RabbitMQ.Utils;
 using Api.DtoModels.Auth;
+using Microsoft.Extensions.Hosting;
+using DataSpaceMicroservice.Data.Context;
+using Microsoft.Extensions.Logging;
+using DataSpaceMicroservice.Data.Services;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace DataSpaceMicroservice.RabbitMQ.Consumers
 {
-    public class AccountMQConsumer : IAccountMQConsumer
+    public class AccountMQConsumer : IHostedService, IAccountMQConsumer
     {
-
-        private static ConnectionFactory _factory;
-        private static IConnection _connection;
-        private static IModel _model;
-        private static Subscription _subscription;
-
         private readonly string ExchangeType = "fanout";
         private readonly string ExchangeName = "RegisterAccount_FanoutExchange";
         private readonly string QueueName = "DataSpaceMicroservice_RegisterAccount_Queue";
 
-        public AccountMQConsumer()
+        private static ConnectionFactory connectionFactory;
+        private static IConnection connection;
+        private static IModel channel;
+        private static EventingBasicConsumer consumer;
+
+        private readonly MyDbContext dbContext;
+        private readonly IAccountService accountService;
+        private readonly ILogger logger;
+
+        public AccountMQConsumer(MyDbContext dbContext, IAccountService accountService, ILogger<AccountMQConsumer> logger)
         {
-            CreateConnection();
+            this.logger = logger;
+            this.dbContext = dbContext;
+            this.accountService = accountService;
         }
 
-        public void CreateConnection()
+        public Task StartAsync(CancellationToken cancellationToken) => CreateConnection();
+        public Task StopAsync(CancellationToken cancellationToken) => Close();
+
+        public Task CreateConnection()
         {
-            _factory = new ConnectionFactory
+            return Task.Run(() =>
             {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
-            };
+                Console.WriteLine("- Creating connection to RabbitMQ...");
+                connectionFactory = new ConnectionFactory
+                {
+                    HostName = "localhost",
+                    UserName = "guest",
+                    Password = "guest"
+                };
 
-            _connection = _factory.CreateConnection();
-            _model = _connection.CreateModel();
+                connection = connectionFactory.CreateConnection();
+                channel = connection.CreateModel();
 
-            _model.ExchangeDeclare(exchange: ExchangeName,
-                type: ExchangeType,
-                durable: true,
-                autoDelete: false,
-                arguments: null);
+                // Define and bind the exchange and the queue
+                channel.ExchangeDeclare(exchange: ExchangeName,
+                    type: ExchangeType,
+                    durable: true,
+                    autoDelete: false,
+                    arguments: null);
 
-            _model.QueueDeclare(queue: QueueName, 
-                durable: true, 
-                exclusive: false, 
-                autoDelete: false, 
-                arguments: null);
+                channel.QueueDeclare(queue: QueueName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
 
-            _model.QueueBind(queue: QueueName, 
-                exchange: ExchangeName, 
-                routingKey: "");
+                channel.QueueBind(queue: QueueName,
+                    exchange: ExchangeName,
+                    routingKey: "");
 
-            _model.BasicQos(0, 10, false);
-            _subscription = new Subscription(_model, QueueName, false);
+                // Bind a consumer with our OnDeliveryReceived handler
+                consumer = new EventingBasicConsumer(channel);
+                consumer.Received += OnDeliveryReceived;
+
+                // Start basic consuming on our channel, with auto-acknowledgement
+                channel.BasicConsume(queue: QueueName, autoAck: true, consumer: consumer);
+            });
         }
 
-        public void Close()
+        public async void OnDeliveryReceived(object model, BasicDeliverEventArgs delivery)
         {
-            _connection.Close();
-        }
-
-        // We could call this upon instantiating the class (within the constructor), 
-        // -- but we want to have the abillity to define the [T] param
-        // -- so, we'll call ConsumeMessages right after we register this service, in Program.cs in this case
-        public void ConsumeMessages()
-        {
-            Console.WriteLine("Listening for Topic <payment.purchaseorder>");
+            Console.WriteLine($"Consuming data from RabbitMQ. Exchange: {ExchangeName} - Qeueue: {QueueName}");
             Console.WriteLine("------------------------------------------");
 
-            // TODO: change this to an OnEvent listener, so we don't run it constantly - we'll trigger our consume from SignalR or something
-            while (true)
+            var messageBody = delivery.Body;
+            var accountDto = (AccountDto)messageBody.Deserialize(typeof(AccountDto));
+
+            Console.WriteLine(" [x] RABBITMQ INFO: [Account Registered] - Message received from exchange/queue [{0}/{1}], data: {2}",
+                ExchangeName,
+                QueueName,
+                Encoding.UTF8.GetString(messageBody));
+
+            if (await accountService.CreateNewUser(accountDto))
             {
-                BasicDeliverEventArgs deliveryArguments = _subscription.Next();
-
-                var message = (AccountDto) deliveryArguments.Body.Deserialize(typeof(AccountDto));
-                var routingKey = deliveryArguments.RoutingKey;
-
-                Console.WriteLine("RABBITMQ INFO: [Account Registered] - Message received from exchange/queue [{0}/{1}], data: {2}",
-                    ExchangeName,
-                    QueueName,
-                    Encoding.Default.GetString(deliveryArguments.Body));
-
-                _subscription.Ack(deliveryArguments);
+                logger.LogInformation($"-- Account: {accountDto.PhoneNumber} added to db. ");
             }
+            else
+            {
+                logger.LogError($"-- Couldn't add Account: {accountDto.PhoneNumber} to db. ");
+            }
+        }
 
+        public Task Close()
+        {
+            connection.Close();
+            return Task.CompletedTask;
         }
     }
 }

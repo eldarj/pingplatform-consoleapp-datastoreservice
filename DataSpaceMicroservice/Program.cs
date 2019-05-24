@@ -49,7 +49,6 @@ namespace DataSpaceMicroservice
                                     a.MigrationsAssembly("DataSpaceMicroservice.Data"));
                     });
 
-                    services.AddHostedService<SignalRClientService>();
                     services.AddTransient<IDataSpaceService, DataSpaceService>();
                     services.AddScoped<IAccountService, AccountService>();
                     services.AddScoped(provider => new MapperConfiguration(cfg =>
@@ -57,7 +56,8 @@ namespace DataSpaceMicroservice
                         cfg.AddProfile(new DataspaceDtoMapperProfile(provider.GetService<MyDbContext>()));
                     }).CreateMapper());
 
-                    services.AddScoped<IAccountMQConsumer, AccountMQConsumer>();
+                    services.AddHostedService<SignalRClientService>();
+                    services.AddHostedService<AccountMQConsumer>();
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
