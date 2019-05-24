@@ -18,11 +18,9 @@ namespace DataSpaceMicroservice.RabbitMQ.Consumers
         private static IModel _model;
         private static Subscription _subscription;
 
-
         private readonly string ExchangeType = "fanout";
         private readonly string ExchangeName = "RegisterAccount_FanoutExchange";
         private readonly string QueueName = "DataSpaceMicroservice_RegisterAccount_Queue";
-
 
         public AccountMQConsumer()
         {

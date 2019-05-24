@@ -22,7 +22,7 @@ namespace DataSpaceMicroservice.Data.Services.Impl
         public async Task<bool> CreateNewUser(AccountDto accountDto)
         {
             var account = dbContext.Accounts.Where(a => a.PhoneNumber == accountDto.PhoneNumber).SingleOrDefault();
-            if (account != null) return false;
+            if (account != null) return false; // implement update
 
             account = new Account
             {

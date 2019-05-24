@@ -95,7 +95,7 @@ namespace DataSpaceMicroservice.SignalR.ClientServices
 
                 hubConnectionAuth.On<AccountDto>("RegistrationDone", async (accountDto) =>
                 {
-                    logger.LogInformation($"-- [AccountMicroservice] registered new account for {accountDto.PhoneNumber}.");
+                    logger.LogInformation($"-- [DataSpaceMicroservice] registered new account for {accountDto.PhoneNumber}.");
 
                     if(await accountService.CreateNewUser(accountDto))
                     {
