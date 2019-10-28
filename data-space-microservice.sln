@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping.Commons.Dtos", "..\..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSpaceMicroservice.RabbitMQ", "DataSpaceMicroservice.RabbitMQ\DataSpaceMicroservice.RabbitMQ.csproj", "{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping.Commons.Settings", "..\..\api\api-gateway\Ping.Commons.Settings\Ping.Commons.Settings.csproj", "{A4995A8B-93AC-4593-8066-9A3152E74EB2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping.Commons.SignalR", "..\..\api\api-gateway\Ping.Commons.SignalR\Ping.Commons.SignalR.csproj", "{AA783DC6-FC03-45F9-A7A8-EF79D35F0A73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5386690-2FB5-4F82-A3B6-E4EF0C7F0637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4995A8B-93AC-4593-8066-9A3152E74EB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4995A8B-93AC-4593-8066-9A3152E74EB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4995A8B-93AC-4593-8066-9A3152E74EB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4995A8B-93AC-4593-8066-9A3152E74EB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA783DC6-FC03-45F9-A7A8-EF79D35F0A73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA783DC6-FC03-45F9-A7A8-EF79D35F0A73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA783DC6-FC03-45F9-A7A8-EF79D35F0A73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA783DC6-FC03-45F9-A7A8-EF79D35F0A73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

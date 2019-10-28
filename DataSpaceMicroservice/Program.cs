@@ -7,14 +7,18 @@ using DataSpaceMicroservice.Data.Context;
 using DataSpaceMicroservice.Data.Mappers;
 using DataSpaceMicroservice.Data.Services;
 using DataSpaceMicroservice.Data.Services.Impl;
+using DataSpaceMicroservice.HostedServices;
 using DataSpaceMicroservice.RabbitMQ.Consumers;
 using DataSpaceMicroservice.RabbitMQ.Consumers.Interfaces;
 using DataSpaceMicroservice.SignalR.ClientServices;
+using DataSpaceMicroservice.SignalRServices;
+using DataSpaceMicroservice.SignalRServices.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Ping.Commons.Settings;
 
 namespace DataSpaceMicroservice
 {
@@ -49,15 +53,22 @@ namespace DataSpaceMicroservice
                                     a.MigrationsAssembly("DataSpaceMicroservice.Data"));
                     });
 
+                    // Jwt authentication// configure strongly typed settings objects
+                    services.Configure<SecuritySettings>(hostContext.Configuration.GetSection("SecuritySettings"));
+                    services.Configure<GatewayBaseSettings>(hostContext.Configuration.GetSection("GatewayBaseSettings"));
+
+                    services.AddHostedService<ConsoleHostedService>();
+                    services.AddHostedService<AccountMQConsumer>();
+
                     services.AddTransient<IDataSpaceService, DataSpaceService>();
                     services.AddScoped<IAccountService, AccountService>();
+
                     services.AddScoped(provider => new MapperConfiguration(cfg =>
                     {
                         cfg.AddProfile(new DataspaceDtoMapperProfile(provider.GetService<MyDbContext>()));
                     }).CreateMapper());
 
-                    services.AddHostedService<SignalRClientService>();
-                    services.AddHostedService<AccountMQConsumer>();
+                    services.AddScoped<IDataspaceHubClientService, DataspaceHubClientService>();
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
